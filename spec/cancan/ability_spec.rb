@@ -1,5 +1,88 @@
 require "spec_helper"
 
+####### ADDED IN THIS FORK OF CANCAN ########
+describe "CanCan::Ability with Conditions" do
+  before(:each) do
+    @ability = Object.new
+    @ability.extend(CanCan::Ability)
+    @widget1 = CanCanTestWidget.new(:name => "iphone", :id => 1)
+    @widget2 = CanCanTestWidget.new(:name => "ipad", :id => 499)
+    @widget3 = CanCanTestWidget.new(:name => "ipad 2", :id => 599)
+    @ability.can :manage, CanCanTestWidget, :id => 1
+    @ability.can :manage, CanCanTestWidget, :id => 3
+    @ability.can :manage, CanCanTestWidget, :name => "ipad", :id => 499
+  end
+  
+  it "should be able to manage id #1" do
+    @ability.can?(:manage, CanCanTestWidget, :id => 1).should be_true
+  end
+  
+  it "should be able to read widget id #1" do
+    @ability.can?(:read, CanCanTestWidget, :id => 1).should be_true
+  end
+  
+  it "should be able to edit widget id #1" do
+    @ability.can?(:edit, CanCanTestWidget, :id => 1 ).should be_true
+  end
+  
+  it "should be able to manage @widget1" do
+    @ability.can?(:manage, @widget1).should be_true
+  end
+  
+  it "should NOT be able to manage id #2" do
+    @ability.can?(:manage, CanCanTestWidget, :id => 2).should_not be_true
+  end
+  
+  it "should NOT be able to read widget id #2" do
+    @ability.can?(:read, CanCanTestWidget, :id => 2).should_not be_true
+  end
+  
+  it "should be able to manage id #3" do
+    @ability.can?(:manage, CanCanTestWidget, :id => 3).should be_true
+  end
+  
+  it "should be able to read widget id #3" do
+    @ability.can?(:read, CanCanTestWidget, :id => 3).should be_true
+  end
+  
+  it "should NOT be able to manage id #4" do
+    @ability.can?(:manage, CanCanTestWidget, :id => 4).should_not be_true
+  end
+  
+  it "should NOT be able to read widget id #4" do
+    @ability.can?(:read, CanCanTestWidget, :id => 4).should_not be_true
+  end
+  
+  it "should be able to manage ipad widget" do
+    @ability.can?(:manage, CanCanTestWidget, :name => "ipad", :id => 499).should be_true
+  end
+  
+  it "should not be able to manage ipad widget without id" do
+    @ability.can?(:manage, CanCanTestWidget, :name => "ipad").should_not be_true
+  end
+  
+  it "should not be able to manage widget 499 without name" do
+    @ability.can?(:manage, CanCanTestWidget, :id => 499).should_not be_true
+  end
+  
+  it "should not be able to manage all widgets carte blanche" do
+    @ability.can?(:manage, CanCanTestWidget).should_not be_true
+  end
+  
+  it "should be able to manage @widget1 instance" do
+    @ability.can?(:manage, @widget1).should be_true
+  end
+  
+  it "should be able to manage @widget2 instance" do
+    @ability.can?(:manage, @widget2).should be_true
+  end
+  
+  it "should NOT be able to manage @widget3 instance" do
+    @ability.can?(:manage, @widget3).should_not be_true
+  end
+end
+#############################################
+
 describe CanCan::Ability do
   before(:each) do
     @ability = Object.new
@@ -221,7 +304,11 @@ describe CanCan::Ability do
     @ability.can :read, Range, :begin => 1, :end => 3
     @ability.can?(:read, 1..3).should be_true
     @ability.can?(:read, 1..4).should be_false
-    @ability.can?(:read, Range).should be_true
+    
+    # technically this should not be true in my fork since i am requiring parameters
+    # so if you set parameters for a class then you don't have carte blanche for a class
+    # @ability.can?(:read, Range).should be_true <--- true in original CanCan but not this fork
+    @ability.can?(:read, Range).should_not be_true
   end
 
   it "should allow an array of options in conditions hash" do
@@ -229,6 +316,9 @@ describe CanCan::Ability do
     @ability.can?(:read, 1..3).should be_true
     @ability.can?(:read, 2..4).should be_false
     @ability.can?(:read, 3..5).should be_true
+    
+    # added to check validity for this fork
+    @ability.can?(:read, Range).should_not be_true
   end
 
   it "should allow a range of options in conditions hash" do
@@ -236,18 +326,27 @@ describe CanCan::Ability do
     @ability.can?(:read, 1..10).should be_true
     @ability.can?(:read, 3..30).should be_true
     @ability.can?(:read, 4..40).should be_false
+    
+    # added to check validity for this fork
+    @ability.can?(:read, Range).should_not be_true
   end
 
   it "should allow nested hashes in conditions hash" do
     @ability.can :read, Range, :begin => { :to_i => 5 }
     @ability.can?(:read, 5..7).should be_true
     @ability.can?(:read, 6..8).should be_false
+    
+    # added to check validity for this fork
+    @ability.can?(:read, Range).should_not be_true
   end
 
   it "should match any element passed in to nesting if it's an array (for has_many associations)" do
     @ability.can :read, Range, :to_a => { :to_i => 3 }
     @ability.can?(:read, 1..5).should be_true
     @ability.can?(:read, 4..6).should be_false
+    
+    # added to check validity for this fork
+    @ability.can?(:read, Range).should_not be_true
   end
 
   it "should not stop at cannot definition when comparing class" do
@@ -406,5 +505,18 @@ describe CanCan::Ability do
       @ability.unauthorized_message(:update, ArgumentError).should == "update argument error"
       @ability.unauthorized_message(:edit, 1..3).should == "edit range"
     end
+  end
+end
+
+
+class CanCanTestWidget
+  attr_accessor :name
+  attr_accessor :id
+  attr_accessor :attributes
+  
+  def initialize(args = {})
+    @name = args[:name] if args.has_key?(:name)
+    @id = args[:id] if args.has_key?(:id)
+    @attributes = args[:attributes] if args.has_key?(:attributes)
   end
 end

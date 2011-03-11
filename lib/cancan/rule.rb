@@ -36,7 +36,17 @@ module CanCan
         nested_subject_matches_conditions?(subject)
       elsif @conditions.kind_of?(Hash) && !subject_class?(subject)
         matches_conditions_hash?(subject)
+        
+      # added for this fork
+      # match passed conditions to passed conditions for this particular rule
+      elsif @conditions.kind_of?(Hash) && subject_class?(subject) && !extra_args.blank?
+        # for some reason conditions are a hash but extra_args are getting passed as an array
+        # so easiest way to compare them is to change them both to strings first
+        conditions.to_s.eql?(extra_args.to_s)
       else
+        # if there are conditions in the rule but we're trying to pass without conditions
+        # then we fail
+        return false if !@conditions.blank? && extra_args.blank?
         # Don't stop at "cannot" definitions when there are conditions.
         @conditions.empty? ? true : @base_behavior
       end
@@ -70,7 +80,7 @@ module CanCan
       attributes
     end
 
-    private
+   private
 
     def subject_class?(subject)
       klass = (subject.kind_of?(Hash) ? subject.values.first : subject).class
@@ -88,6 +98,20 @@ module CanCan
     def matches_subject_class?(subject)
       @subjects.any? { |sub| sub.kind_of?(Module) && (subject.kind_of?(sub) || subject.class.to_s == sub.to_s || subject.kind_of?(Module) && subject.ancestors.include?(sub)) }
     end
+
+    # added for this fork
+    def matches_permission_conditions?(args)
+      #raise ArgumentError if args.nil?
+      puts "args is a? #{args.class} / conditions is a? #{conditions.class}"
+      puts "args: #{args} conditions: #{conditions}"
+      # out = conditions.eql?(args) if args.is_a?(Hash)
+      # out = conditions.to_a.eql?(args) if args.is_a?(Array)
+      out = conditions.to_s.eql?(args.to_s) if args.is_a?(Hash) or args.is_a?(Array)
+      raise ArgumentError if out.nil?
+      puts "output --> #{out}"
+      out
+    end
+
 
     # Checks if the given subject matches the given conditions hash.
     # This behavior can be overriden by a model adapter by defining two class methods:

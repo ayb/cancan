@@ -108,10 +108,13 @@ module CanCan
     #   can :read, :stats
     #   can? :read, :stats # => true
     #
-    # IMPORTANT: Neither a hash of conditions or a block will be used when checking permission on a class.
+    #
+    # *** UPDATED IN THIS FORK: ***
+    # IMPORTANT: A hash of conditions or a block will be used when checking permission on a class.
     #
     #   can :update, Project, :priority => 3
-    #   can? :update, Project # => true
+    #   can? :update, Project # => false
+    #   can? :update, Project, :priority => 3 # => true
     #
     # If you pass no arguments to +can+, the action, class, and object will be passed to the block and the
     # block will always be executed. This allows you to override the full behavior if the permissions are
