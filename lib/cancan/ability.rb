@@ -53,6 +53,15 @@ module CanCan
     #   end
     #
     # Also see the RSpec Matchers to aid in testing.
+    #
+    # for use with menus etc. - i.e. if they have access to a tool that is scoped by language_id etc
+    # rather than iterate through every possible language_id to see if they can get access
+    # add the :any => true option
+    #
+    # i.e. can :manage, Language, :id => 1  
+    #      can? :manage, Language                 #=> false
+    #      can? :manage, Language, :id => 1       #=> true
+    #      can? :manage, Language, :any => true   #=> true
     def can?(action, subject, *extra_args)
       match = relevant_rules_for_match(action, subject).detect do |rule|
         rule.matches_conditions?(action, subject, extra_args)
@@ -110,7 +119,7 @@ module CanCan
     #
     #
     # *** UPDATED IN THIS FORK: ***
-    # IMPORTANT: A hash of conditions or a block will be used when checking permission on a class.
+    # IMPORTANT: A hash of conditions or a block WILL be used when checking permission on a class.
     #
     #   can :update, Project, :priority => 3
     #   can? :update, Project # => false

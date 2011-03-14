@@ -42,7 +42,10 @@ module CanCan
       elsif @conditions.kind_of?(Hash) && subject_class?(subject) && !extra_args.blank?
         # for some reason conditions are a hash but extra_args are getting passed as an array
         # so easiest way to compare them is to change them both to strings first
-        conditions.to_s.eql?(extra_args.to_s)
+        # 
+        # in this case we compare to ensure that the hash of conditions matches exactly
+        # or we can check for :any => true as an option, as a general check (for adding to menus etc.)
+        conditions.to_s.eql?(extra_args.to_s) or extra_args.to_s.eql?({ :any => true }.to_s) 
       else
         # if there are conditions in the rule but we're trying to pass without conditions
         # then we fail

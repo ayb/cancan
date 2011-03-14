@@ -69,6 +69,10 @@ describe "CanCan::Ability with Conditions" do
     @ability.can?(:manage, CanCanTestWidget).should_not be_true
   end
   
+  it "should allow us to add the item on a menu since user has access" do
+    @ability.can?(:manage, CanCanTestWidget, :any => true).should be_true
+  end
+  
   it "should be able to manage @widget1 instance" do
     @ability.can?(:manage, @widget1).should be_true
   end
