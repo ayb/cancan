@@ -9,9 +9,13 @@ CanCan is an authorization library for Ruby on Rails which restricts what resour
 This fork of CanCan lets you define and enforce scoped access.  Specifically, it lets you do this:
 
 can :manage, Widget, :color => "blue"
+
 can? :manage, Widget                   #=> false
+
 can? :manage, Widget, :color => "blue" #=> true
+
 can? :manage, Widget, :color => "red"  #=> false
+
 can? :manage, Widget, :any => true     #=> true   (useful for user interface, menus, etc.)
 
 
