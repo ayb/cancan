@@ -11,6 +11,9 @@ describe "CanCan::Ability with Conditions" do
     @ability.can :manage, CanCanTestWidget, :id => 1
     @ability.can :manage, CanCanTestWidget, :id => 3
     @ability.can :manage, CanCanTestWidget, :name => "ipad", :id => 499
+    @admin_ability = Object.new
+    @admin_ability.extend(CanCan::Ability)
+    @admin_ability.can :manage, :all
   end
   
   it "should be able to manage id #1" do
@@ -83,6 +86,10 @@ describe "CanCan::Ability with Conditions" do
   
   it "should NOT be able to manage @widget3 instance" do
     @ability.can?(:manage, @widget3).should_not be_true
+  end
+  
+  it "should let admin do everything" do
+    @admin_ability.can?(:manage, CanCanTestWidget).should be_true
   end
 end
 #############################################
