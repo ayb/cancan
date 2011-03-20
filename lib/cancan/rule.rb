@@ -102,20 +102,6 @@ module CanCan
       @subjects.any? { |sub| sub.kind_of?(Module) && (subject.kind_of?(sub) || subject.class.to_s == sub.to_s || subject.kind_of?(Module) && subject.ancestors.include?(sub)) }
     end
 
-    # added for this fork
-    def matches_permission_conditions?(args)
-      #raise ArgumentError if args.nil?
-      puts "args is a? #{args.class} / conditions is a? #{conditions.class}"
-      puts "args: #{args} conditions: #{conditions}"
-      # out = conditions.eql?(args) if args.is_a?(Hash)
-      # out = conditions.to_a.eql?(args) if args.is_a?(Array)
-      out = conditions.to_s.eql?(args.to_s) if args.is_a?(Hash) or args.is_a?(Array)
-      raise ArgumentError if out.nil?
-      puts "output --> #{out}"
-      out
-    end
-
-
     # Checks if the given subject matches the given conditions hash.
     # This behavior can be overriden by a model adapter by defining two class methods:
     # override_matching_for_conditions?(subject, conditions) and
